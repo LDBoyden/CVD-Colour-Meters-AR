@@ -10,18 +10,12 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.developer.cvm_ar.MainActivity">
 
-    <TextView
-        android:id="@+id/sample_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!" />
 
-    <TextView
-        android:text="We have liftoff"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/sample_text"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="18dp"
-        android:id="@+id/successText" />
+    <org.opencv.android.JavaCameraView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/vidFeed"
+        />
+
+
 </RelativeLayout>
