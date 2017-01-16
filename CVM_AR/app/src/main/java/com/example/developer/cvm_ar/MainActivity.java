@@ -1,21 +1,22 @@
 package com.example.developer.cvm_ar;
 
-import android.nfc.Tag;
-import android.opengl.Visibility;
+
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
-import android.widget.Switch;
-import android.widget.TextView;
+
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
+
 
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
@@ -26,7 +27,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     private static String TAG = "MainActivity";
     JavaCameraView camStream; //object of the surface view containing the camera feed "vidfeed"
-    Mat mRgba; //global variables are horrific
+    Mat mRgba, mAcrom, mEdge, mHistr; //global variables are horrific
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +98,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     @Override
     public void onCameraViewStarted(int width, int height) {
-        mRgba = new Mat(height,width, CvType.CV_8SC4);
+        mRgba = new Mat(height,width, CvType.CV_8SC4); // defines matrice as being the size of the screen with colour channels as 4
+        mAcrom = new Mat(height,width, CvType.CV_8SC1); //defines colour channels as 1
+        mEdge = new Mat(height,width, CvType.CV_8SC1); //defines entire screen as field to detect and 1 channel.
     }
 
     @Override
@@ -107,7 +110,16 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        mRgba = inputFrame.rgba();
-        return mRgba;
+        mRgba = inputFrame.rgba(); //renders frames from video in colour {R,G,B,A} each pixel?.
+
+
+        Imgproc.cvtColor(mRgba,mAcrom,Imgproc.COLOR_RGB2GRAY); //image processing simple rgb to gray
+        Imgproc.Canny(mAcrom,mEdge,10,30); // simple edge detection inputmat,outputmat,gradient detection vertical, gradient horizontal.
+        //Method(input material, output material, process parameters)
+        //Core.split(); could be needed for splitting colour channels.
+        //Imgproc.calcHist();
+        
+
+        return mEdge;  // return value should be output value
     }
 }
