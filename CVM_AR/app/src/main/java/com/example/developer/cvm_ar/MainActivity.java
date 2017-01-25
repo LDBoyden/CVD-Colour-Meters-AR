@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     private static String TAG = "MainActivity";
     JavaCameraView camStream; //object of the surface view containing the camera feed "vidfeed"
-    Mat mRgba, mAcrom, mEdge, mHistr; //global variables are horrific
+    Mat mRgba, mAcrom, mEdge, mHsv; //global variables are horrific
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         mRgba = new Mat(height,width, CvType.CV_8SC4); // defines matrice as being the size of the screen with colour channels as 4
         mAcrom = new Mat(height,width, CvType.CV_8SC1); //defines colour channels as 1
         mEdge = new Mat(height,width, CvType.CV_8SC1); //defines entire screen as field to detect and 1 channel.
+        mHsv = new Mat(height,width, CvType.CV_64FC2);
     }
 
     @Override
@@ -115,11 +116,12 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
         Imgproc.cvtColor(mRgba,mAcrom,Imgproc.COLOR_RGB2GRAY); //image processing simple rgb to gray
         Imgproc.Canny(mAcrom,mEdge,10,30); // simple edge detection inputmat,outputmat,gradient detection vertical, gradient horizontal.
+        Imgproc.cvtColor(mRgba,mHsv,Imgproc.COLOR_RGB2HSV_FULL);
         //Method(input material, output material, process parameters)
         //Core.split(); could be needed for splitting colour channels.
         //Imgproc.calcHist();
         
 
-        return mEdge;  // return value should be output value
+        return mHsv;  // return value should be output value
     }
 }
