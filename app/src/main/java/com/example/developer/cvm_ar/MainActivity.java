@@ -102,8 +102,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         mRgb = new Mat(height,width, CvType.CV_8SC4);
         mAcrom = new Mat(height,width, CvType.CV_8SC1); //defines colour channels as 1
         mEdge = new Mat(height,width, CvType.CV_8SC1); //defines entire screen as field to detect and 1 channel.
-        mHsv = new Mat(height,width, CvType.CV_8SC4);
-        mBgr = new Mat(height,width, CvType.CV_8SC4);
+        mHsv = new Mat(height,width, CvType.CV_8SC3);
+        mBgr = new Mat(height,width, CvType.CV_8SC3);
     }
 
     @Override
@@ -114,20 +114,20 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         mRgba = inputFrame.rgba(); //renders frames from video in colour {R,G,B,A} each pixel?.
-
+        mRgb = mRgba;
 
         //Imgproc.cvtColor(mRgba,mAcrom,Imgproc.COLOR_RGB2GRAY); //image processing simple rgb to gray
         //Imgproc.Canny(mAcrom,mEdge,10,30); // simple edge detection inputmat,outputmat,gradient detection vertical, gradient horizontal.
 
-        Imgproc.cvtColor(mRgba,mBgr,Imgproc.COLOR_RGBA2BGR);
+         Imgproc.cvtColor(mRgb,mBgr,Imgproc.COLOR_RGBA2BGR);
         Imgproc.cvtColor(mBgr,mHsv,Imgproc.COLOR_BGR2HSV);
-        Imgproc.cvtColor(mHsv,mRgba,Imgproc.COLOR_BGR2RGBA);
+        //Imgproc.cvtColor(mHsv,mRgba,Imgproc.COLOR_BGR2RGBA);
 
         //Imgproc.cvtColor(mHsv,mRgba,Imgproc.COLOR_HSV2RGB_FULL);
         //Method(input material, output material, process parameters)
         //Core.split(); could be needed for splitting colour channels.
         //Imgproc.calcHist();
-        
+
 
         return mRgba;  // return value should be output value
     }

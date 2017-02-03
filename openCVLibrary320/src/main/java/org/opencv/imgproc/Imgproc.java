@@ -1776,7 +1776,7 @@ public class Imgproc {
     {
         
         cvtColor_1(src.nativeObj, dst.nativeObj, code);
-        
+
         return;
     }
 
