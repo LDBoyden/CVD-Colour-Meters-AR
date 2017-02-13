@@ -4,8 +4,9 @@ package com.example.developer.cvm_ar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.SurfaceView;
-
+import android.widget.TextView;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -15,7 +16,12 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.MatOfRect;
+import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
+
 
 
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
@@ -28,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private static String TAG = "MainActivity";
     JavaCameraView camStream; //object of the surface view containing the camera feed "vidfeed"
     Mat mRgba, mRgb , mAcrom, mEdge, mHsv , mBgr; //global variables are horrific
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         camStream = (JavaCameraView) findViewById(R.id.vidFeed); //assigning the surface view to the camera object
         camStream.setVisibility(SurfaceView.VISIBLE);
         camStream.setCvCameraViewListener(this);
+
     }
 
     BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -104,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         mEdge = new Mat(height,width, CvType.CV_8SC1); //defines entire screen as field to detect and 1 channel.
         mHsv = new Mat(height,width, CvType.CV_8SC3);
         mBgr = new Mat(height,width, CvType.CV_8SC3);
+
     }
 
     @Override
@@ -116,10 +125,13 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         mRgba = inputFrame.rgba(); //renders frames from video in colour {R,G,B,A} each pixel?.
         mRgb = mRgba;
 
+        double mSizeX = mRgba.size().height;
+        double mSizeY = mRgba.size().width;
+
         //Imgproc.cvtColor(mRgba,mAcrom,Imgproc.COLOR_RGB2GRAY); //image processing simple rgb to gray
         //Imgproc.Canny(mAcrom,mEdge,10,30); // simple edge detection inputmat,outputmat,gradient detection vertical, gradient horizontal.
 
-         Imgproc.cvtColor(mRgb,mBgr,Imgproc.COLOR_RGBA2BGR);
+        Imgproc.cvtColor(mRgb,mBgr,Imgproc.COLOR_RGBA2BGR);
         Imgproc.cvtColor(mBgr,mHsv,Imgproc.COLOR_BGR2HSV);
         //Imgproc.cvtColor(mHsv,mRgba,Imgproc.COLOR_BGR2RGBA);
 
@@ -129,6 +141,15 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         //Imgproc.calcHist();
 
 
+        //System.out.println(mHsv);
+        //Imgproc.rectangle(mRgba,new Point(mSizeX/100*10,mSizeY/100*10),new Point(mSizeX/100*50,mSizeY/100*80),new Scalar(0,0,0),6);
+
+        Imgproc.line(mRgba,new Point(mSizeX/100*90,mSizeY/100*10),new Point(mSizeX/100*10,mSizeY/100*10),new Scalar(0,0,0),6);
+        Imgproc.line(mRgba,new Point(mSizeX/100*80,mSizeY/100*20),new Point(mSizeX/100*20,mSizeY/100*20),new Scalar(0,0,0),6);
+        Imgproc.line(mRgba,new Point(mSizeX/100*70,mSizeY/100*30),new Point(mSizeX/100*30,mSizeY/100*30),new Scalar(0,0,0),6);
+        Imgproc.line(mRgba,new Point(mSizeX/100*60,mSizeY/100*40),new Point(mSizeX/100*40,mSizeY/100*40),new Scalar(0,0,0),6);
+        Imgproc.line(mRgba,new Point(mSizeX/100*10,mSizeY/100*50),new Point(mSizeX/100*170,mSizeY/100*50),new Scalar(0,0,0),6);
+        // screen width is 180 screen height is 60
         return mRgba;  // return value should be output value
     }
 }
