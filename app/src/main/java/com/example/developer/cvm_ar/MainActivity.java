@@ -31,9 +31,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     private static String TAG = "MainActivity";
     JavaCameraView camStream; //object of the surface view containing the camera feed "vidfeed"
-    Mat mRgba, mRgb, mAcrom, mEdge, mHsv, mBgr; //global variables are horrific
-    private Scalar mColHSV = new Scalar(255,255,255);
+    public Mat mRgba, mRgb, mHsv; //global variables are horrific
+    private Scalar mColHSV = new Scalar(0, 0, 0);
     TextView SqCol;
+    String ColOut = "???";
 
 
     @Override
@@ -50,9 +51,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         camStream.setVisibility(SurfaceView.VISIBLE);
         camStream.setCvCameraViewListener(this);
 
-        SqCol = (TextView) findViewById(R.id.TvColOut);
-        SqCol.setText("Hue: " + (int) mColHSV.val[0] + " Sat: " + (int) mColHSV.val[1] + " Val: " + (int) mColHSV.val[2]);
-
+        TextView SetColView = (TextView) findViewById(R.id.TvColOut);
+        SetColView.setText(ColOut);
     }
 
     BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -109,13 +109,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     public void onCameraViewStarted(int width, int height) {
         mRgba = new Mat(height, width, CvType.CV_8SC4); // defines matrix as being the size of the screen with colour channels as 4
-        mRgb = new Mat(height, width, CvType.CV_8SC4);
-        mAcrom = new Mat(height, width, CvType.CV_8SC1); //defines colour channels as 1
-        mEdge = new Mat(height, width, CvType.CV_8SC1); //defines entire screen as field to detect and 1 channel.
         mHsv = new Mat(height, width, CvType.CV_8SC3);
-        mBgr = new Mat(height, width, CvType.CV_8SC3);
 
-        //mColHSV = new Scalar(255,255,255);
+        mColHSV = new Scalar(255);
 
     }
 
@@ -129,27 +125,31 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         mRgba = inputFrame.rgba(); //renders frames from video in colour {R,G,B,A} each pixel?.
         mRgb = mRgba;
 
+        DrawDetectionSq();
+
+        return mRgba;  // return value should be output value
+    }
+
+
+    public void DrawDetectionSq() {
         double mSizeX = mRgba.size().height;
         double mSizeY = mRgba.size().width;
 
         Point Dsq1 = new Point(mSizeY / 10 * 6, mSizeX / 10 * 4);
         Point Dsq2 = new Point(mSizeY / 10 * 4, mSizeX / 10 * 6);
 
-        Imgproc.cvtColor(mRgb, mBgr, Imgproc.COLOR_RGBA2BGR);
-        Imgproc.cvtColor(mBgr, mHsv, Imgproc.COLOR_BGR2HSV);
-        //Imgproc.cvtColor(mHsv,mRgba,Imgproc.COLOR_BGR2RGBA);
-
         Imgproc.rectangle(mRgba, Dsq1, Dsq2, new Scalar(100, 25, 100), 6);
+        ColourDetectionSq(mSizeX,mSizeY);
+    }
+
+    public void ColourDetectionSq(double x, double y){
         Rect DetSQ = new Rect();
 
-        //mHsv = Core.sumElems(detection points?);
-        //ColView(mSizeX,mSizeY);
+        DetSQ.x = (int) y / 2;
+        DetSQ.y = (int) x / 2;
 
-        DetSQ.x = (int) mSizeY / 2;
-        DetSQ.y = (int) mSizeX / 2;
-
-        DetSQ.width = (int) mSizeX / 10 * 2;
-        DetSQ.height = (int) mSizeY / 10 * 2;
+        DetSQ.width = (int) x / 10 * 2;
+        DetSQ.height = (int) y / 10 * 2;
 
         Mat HSVDetSQ = new Mat();
         Mat RGBADetSQ = mRgba.submat(DetSQ);
@@ -158,11 +158,19 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         mColHSV = Core.sumElems(RGBADetSQ);
         int DetSQPx = DetSQ.height * DetSQ.height;
         for (int i = 0; i < mColHSV.val.length; i++) {
+            for(int j = 0; j < RGBADetSQ.width(); j++) {
+                for(int k = 0; (j == RGBADetSQ.width()) && (j != RGBADetSQ.height()); k++){
+                    mColHSV = new Scalar(RGBADetSQ.get(j, k));
+
+                }
+            }
             mColHSV.val[i] /= DetSQPx;
-        }
 
+            ColOut = "Touched HSV color: (" + (int)mColHSV.val[0] + ", " +(int)mColHSV.val[1] + ", " + (int)mColHSV.val[2] + ")";
+            //SqCol.setText(ColOut); // Current Problem area. changing text without crashing app so it updates.
+            Log.i(TAG, ColOut);
 
-        return mRgba;  // return value should be output value
+        } //reading pixels and averageing.
     }
 
 }
