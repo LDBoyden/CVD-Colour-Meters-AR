@@ -1,5 +1,6 @@
 package com.example.developer.cvm_ar;
 
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private Scalar mColHSV = new Scalar(0, 0, 0);
     TextView SqCol;
     String ColOut = "???";
-
+    Handler UiAccess = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +52,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         camStream.setVisibility(SurfaceView.VISIBLE);
         camStream.setCvCameraViewListener(this);
 
-        TextView SetColView = (TextView) findViewById(R.id.TvColOut);
-        SetColView.setText(ColOut);
+        SqCol = (TextView) findViewById(R.id.TvColOut);
+
+
     }
 
     BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -165,12 +167,27 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 }
             }
             mColHSV.val[i] /= DetSQPx;
-
-            ColOut = "Touched HSV color: (" + (int)mColHSV.val[0] + ", " +(int)mColHSV.val[1] + ", " + (int)mColHSV.val[2] + ")";
-            //SqCol.setText(ColOut); // Current Problem area. changing text without crashing app so it updates.
-            Log.i(TAG, ColOut);
+            ChText();
 
         } //reading pixels and averageing.
     }
+
+    public void ChText(){
+
+        ColOut = "Touched HSV color: (" + (int)mColHSV.val[0] + ", " +(int)mColHSV.val[1] + ", " + (int)mColHSV.val[2] + ")";
+
+        Runnable UpdateUI = new Runnable() {
+            @Override
+            public void run() {
+                {
+                    SqCol.setText(ColOut);
+                }
+            }
+        };
+
+        UiAccess.post(UpdateUI);
+
+    }
+
 
 }
