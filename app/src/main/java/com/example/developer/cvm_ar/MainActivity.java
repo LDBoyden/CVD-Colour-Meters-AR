@@ -14,7 +14,6 @@ import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 
-import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -110,8 +109,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     @Override
     public void onCameraViewStarted(int width, int height) {
-        mRgba = new Mat(height, width, CvType.CV_8SC4); // defines matrix as being the size of the screen with colour channels as 4
-        mHsv = new Mat(height, width, CvType.CV_8SC3);
+        mRgba = new Mat(height, width, CvType.CV_8UC4); // defines matrix as being the size of the screen with colour channels as 4
+        mHsv = new Mat(height, width, CvType.CV_8UC3);
 
         mColHSV = new Scalar(255);
 
@@ -146,35 +145,28 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     public void ColourDetectionSq(double x, double y){
         Rect DetSQ = new Rect();
-
         DetSQ.x = (int) y / 2;
         DetSQ.y = (int) x / 2;
 
         DetSQ.width = (int) x / 10 * 2;
         DetSQ.height = (int) y / 10 * 2;
 
-        Mat HSVDetSQ = new Mat();
         Mat RGBADetSQ = mRgba.submat(DetSQ);
-        Imgproc.cvtColor(RGBADetSQ, HSVDetSQ, Imgproc.COLOR_RGB2HSV_FULL);
 
-        mColHSV = Core.sumElems(RGBADetSQ);
-        int DetSQPx = DetSQ.height * DetSQ.height;
-        for (int i = 0; i < mColHSV.val.length; i++) {
-            for(int j = 0; j < RGBADetSQ.width(); j++) {
-                for(int k = 0; (j == RGBADetSQ.width()) && (j != RGBADetSQ.height()); k++){
-                    mColHSV = new Scalar(RGBADetSQ.get(j, k));
+        Imgproc.cvtColor(RGBADetSQ, RGBADetSQ, Imgproc.COLOR_RGBA2RGB);
+        Imgproc.cvtColor(RGBADetSQ, RGBADetSQ, Imgproc.COLOR_RGB2HSV_FULL);
 
-                }
-            }
-            mColHSV.val[i] /= DetSQPx;
-            ChText();
 
-        } //reading pixels and averageing.
+        mColHSV = new Scalar(RGBADetSQ.get(0, 0));
+        mColHSV.val[1] = mColHSV.val[1]/2.55;
+        mColHSV.val[2] = mColHSV.val[2]/2.55;
+
+        ChText();
     }
 
     public void ChText(){
 
-        ColOut = "Touched HSV color: (" + (int)mColHSV.val[0] + ", " +(int)mColHSV.val[1] + ", " + (int)mColHSV.val[2] + ")";
+        ColOut = "HSV color: (" + (int)mColHSV.val[0] + ", " +(int)mColHSV.val[1] + ", " + (int)mColHSV.val[2] + ")";
 
         Runnable UpdateUI = new Runnable() {
             @Override
