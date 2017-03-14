@@ -19,6 +19,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private static String TAG = "MainActivity";
     JavaCameraView camStream; //object of the surface view containing the camera feed "vidfeed"
     public Mat mRgba, mRgb, mHsv; //global variables are horrific
-    private Scalar mColHSV = new Scalar(0, 0, 0);
+
     TextView SqCol;
     String ColOut = "???";
     Handler UiAccess = new Handler();
@@ -111,9 +112,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     public void onCameraViewStarted(int width, int height) {
         mRgba = new Mat(height, width, CvType.CV_8UC4); // defines matrix as being the size of the screen with colour channels as 4
         mHsv = new Mat(height, width, CvType.CV_8UC3);
-
-        mColHSV = new Scalar(255);
-
     }
 
     @Override
@@ -126,24 +124,36 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         mRgba = inputFrame.rgba(); //renders frames from video in colour {R,G,B,A} each pixel?.
         mRgb = mRgba;
 
-        DrawDetectionSq();
+        for(int i = 0; i < 11; i++) {
+            for (int j = 0; j < 5; j++) {
+                DrawDetectionSq(i, j);
+            }
+        }
 
         return mRgba;  // return value should be output value
     }
 
 
-    public void DrawDetectionSq() {
+    public void DrawDetectionSq(int col, int row) {
         double mSizeX = mRgba.size().height;
         double mSizeY = mRgba.size().width;
 
-        Point Dsq1 = new Point(mSizeY / 10 * 6, mSizeX / 10 * 4);
-        Point Dsq2 = new Point(mSizeY / 10 * 4, mSizeX / 10 * 6);
+        Point Dsq1 = new Point(mSizeY/10*row , mSizeX/5*col);
+        Point Dsq2 = new Point(mSizeY/10*col , mSizeX/5*row);
+        Point DelC = new Point(mSizeY/10*(col+0.5), mSizeX/5*(row+0.5));
 
-        Imgproc.rectangle(mRgba, Dsq1, Dsq2, new Scalar(100, 25, 100), 6);
+        Size DelA = new Size(60,60);
+
+        Imgproc.rectangle(mRgba, Dsq1, Dsq2, new Scalar(100,25,100),3);
+        Imgproc.ellipse(mRgba,DelC,DelA,0,0,360,new Scalar(100,25,100),3);
+        //Imgproc.line(mRgba,DelC,);
+
         ColourDetectionSq(mSizeX,mSizeY);
     }
 
     public void ColourDetectionSq(double x, double y){
+        Scalar mColHSV;
+
         Rect DetSQ = new Rect();
         DetSQ.x = (int) y / 2;
         DetSQ.y = (int) x / 2;
@@ -158,15 +168,16 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
 
         mColHSV = new Scalar(RGBADetSQ.get(0, 0));
+
         mColHSV.val[1] = mColHSV.val[1]/2.55;
         mColHSV.val[2] = mColHSV.val[2]/2.55;
 
-        ChText();
+        //ChText(mColHSV);
     }
 
-    public void ChText(){
+    public void ChText(Scalar ScVal){
 
-        ColOut = "HSV color: (" + (int)mColHSV.val[0] + ", " +(int)mColHSV.val[1] + ", " + (int)mColHSV.val[2] + ")";
+        ColOut = "HSV color: (" + (int)ScVal.val[0] + ", " +(int)ScVal.val[1] + ", " + (int)ScVal.val[2] + ")";
 
         Runnable UpdateUI = new Runnable() {
             @Override
