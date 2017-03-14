@@ -142,16 +142,23 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         Point Dsq2 = new Point(mSizeY/10*col , mSizeX/5*row);
         Point DelC = new Point(mSizeY/10*(col+0.5), mSizeX/5*(row+0.5));
 
-        Size DelA = new Size(60,60);
+        int radius = 60;
+        Size DelA = new Size(radius,radius);
 
         Imgproc.rectangle(mRgba, Dsq1, Dsq2, new Scalar(100,25,100),3);
         Imgproc.ellipse(mRgba,DelC,DelA,0,0,360,new Scalar(100,25,100),3);
-        //Imgproc.line(mRgba,DelC,);
 
-        ColourDetectionSq(mSizeX,mSizeY);
+        //Line Calculations By David Flatla.
+        Scalar mColHSV = ColourDetectionSq(mSizeX,mSizeY);
+        double degs = mColHSV.val[0] * 360.0 / 255.0;
+        double rads = degs / 2.0 * Math.PI;
+        int x = (int) Math.round(radius * Math.sin(rads));
+        int y = (int) Math.round(radius * Math.cos(rads));
+        Point lineEnd = new Point(x+Dsq1.x, y+Dsq1.y);
+        Imgproc.line(mRgba, Dsq1, lineEnd, new Scalar(200,100,100), 3);
     }
 
-    public void ColourDetectionSq(double x, double y){
+    public Scalar ColourDetectionSq(double x, double y){
         Scalar mColHSV;
 
         Rect DetSQ = new Rect();
@@ -172,6 +179,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         mColHSV.val[1] = mColHSV.val[1]/2.55;
         mColHSV.val[2] = mColHSV.val[2]/2.55;
 
+        return mColHSV;
         //ChText(mColHSV);
     }
 
