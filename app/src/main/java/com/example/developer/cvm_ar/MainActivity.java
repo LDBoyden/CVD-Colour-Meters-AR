@@ -1,12 +1,9 @@
 package com.example.developer.cvm_ar;
 
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-
 import android.view.SurfaceView;
-import android.widget.TextView;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -22,7 +19,6 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
     // Used to load the 'native-lib' library on application startup.
@@ -32,11 +28,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     private static String TAG = "MainActivity";
     JavaCameraView camStream; //object of the surface view containing the camera feed "vidfeed"
-    public Mat mRgba, mRgb, mHsv; //global variables are horrific
-
-    TextView SqCol;
-    String ColOut = "???";
-    Handler UiAccess = new Handler();
+    public Mat mRgba; //global variables are horrific
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,10 +43,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         camStream = (JavaCameraView) findViewById(R.id.vidFeed); //assigning the surface view to the camera object
         camStream.setVisibility(SurfaceView.VISIBLE);
         camStream.setCvCameraViewListener(this);
-
-        SqCol = (TextView) findViewById(R.id.TvColOut);
-
-
     }
 
     BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -107,11 +95,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
      */
     public native String stringFromJNI();
 
-
     @Override
     public void onCameraViewStarted(int width, int height) {
         mRgba = new Mat(height, width, CvType.CV_8UC4); // defines matrix as being the size of the screen with colour channels as 4
-        mHsv = new Mat(height, width, CvType.CV_8UC3);
     }
 
     @Override
@@ -122,82 +108,62 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         mRgba = inputFrame.rgba(); //renders frames from video in colour {R,G,B,A} each pixel?.
-        mRgb = mRgba;
 
-        for(int i = 0; i < 11; i++) {
-            for (int j = 0; j < 5; j++) {
-                DrawDetectionSq(i, j);
+        int numCols = 10;
+        int numRows = 5;
+        int rectWidth = mRgba.width()/numCols;
+        int rectHeight = mRgba.height()/numRows;
+
+        for(int i = 0; i < numCols; i++) {
+            int topLeftX = rectWidth * i;
+            for (int j = 0; j < numRows; j++) {
+                int topLeftY = rectHeight * j;
+                DrawDetectionSq(topLeftX, topLeftY, rectWidth, rectHeight);
             }
         }
-
         return mRgba;  // return value should be output value
     }
 
+    public void DrawDetectionSq(int topLeftX, int topLeftY, int rectWidth, int rectHeight) {
+        // find the rectangle coordinates and draw the rectangle
+        Point rectTopLeft = new Point(topLeftX, topLeftY);
+        Point rectBotRight = new Point(topLeftX+rectWidth, topLeftY+rectHeight);
+        Imgproc.rectangle(mRgba, rectTopLeft, rectBotRight, new Scalar(100,25,100),3);
 
-    public void DrawDetectionSq(int col, int row) {
-        double mSizeX = mRgba.size().height;
-        double mSizeY = mRgba.size().width;
+        // find the ellipse coordinates and draw the ellipse
+        int centreX = topLeftX + (rectWidth/2);
+        int centreY = topLeftY + (rectHeight/2);
+        Point ellipseCentre = new Point(centreX, centreY);
+        int ellipseRadius = Math.min(rectWidth, rectHeight)/2;
+        Imgproc.ellipse(mRgba,ellipseCentre,new Size(ellipseRadius,ellipseRadius),0,0,360,new Scalar(100,25,100),3);
 
-        Point Dsq1 = new Point(mSizeY/10*row , mSizeX/5*col);
-        Point Dsq2 = new Point(mSizeY/10*col , mSizeX/5*row);
-        Point DelC = new Point(mSizeY/10*(col+0.5), mSizeX/5*(row+0.5));
+        // Line Calculations By David Flatla.
+        Scalar mColHSV = GetHSVColourAt(centreX, centreY);
+        double rads = (mColHSV.val[0] / 128.0) * Math.PI;   // 127.5
+        double satRadius = ellipseRadius * (mColHSV.val[1]/256.0);
+        int x = (int) Math.round(satRadius * Math.cos(rads));
+        int y = (int) Math.round(satRadius * Math.sin(rads) * -1.0);
+        Point lineEnd = new Point(centreX+x, centreY+y);
+        Imgproc.line(mRgba, ellipseCentre, lineEnd, new Scalar(200,100,100), 3);
 
-        int radius = 60;
-        Size DelA = new Size(radius,radius);
-
-        Imgproc.rectangle(mRgba, Dsq1, Dsq2, new Scalar(100,25,100),3);
-        Imgproc.ellipse(mRgba,DelC,DelA,0,0,360,new Scalar(100,25,100),3);
-
-        //Line Calculations By David Flatla.
-        Scalar mColHSV = ColourDetectionSq(mSizeX,mSizeY);
-        double degs = mColHSV.val[0] * 360.0 / 255.0;
-        double rads = degs / 2.0 * Math.PI;
-        int y = (int) Math.round(radius * Math.sin(rads));
-        int x = (int) Math.round(radius * Math.cos(rads));
-        Point lineEnd = new Point(y+DelC.y, x+DelC.x);
-        Imgproc.line(mRgba, DelC, lineEnd, new Scalar(200,100,100), 3);
+//        String hue = "" + mColHSV.val[0];
+//        Imgproc.putText(mRgba, hue, ellipseCentre, 1, 2.0, new Scalar(200,100,100), 3);
     }
 
-    public Scalar ColourDetectionSq(double x, double y){
-        Scalar mColHSV;
-
+    public Scalar GetHSVColourAt(int centreX, int centreY) {
+        // define the detection square (1x1 centred at above coordinates)
         Rect DetSQ = new Rect();
-        DetSQ.x = (int) y / 2;
-        DetSQ.y = (int) x / 2;
+        DetSQ.x = centreX;
+        DetSQ.y = centreY;
+        DetSQ.width = 1;
+        DetSQ.height = 1;
 
-        DetSQ.width = (int) x / 10 * 2;
-        DetSQ.height = (int) y / 10 * 2;
-
+        // get the RGBA colours (1) in the detection square
         Mat RGBADetSQ = mRgba.submat(DetSQ);
-
         Imgproc.cvtColor(RGBADetSQ, RGBADetSQ, Imgproc.COLOR_RGBA2RGB);
         Imgproc.cvtColor(RGBADetSQ, RGBADetSQ, Imgproc.COLOR_RGB2HSV_FULL);
 
-
-        mColHSV = new Scalar(RGBADetSQ.get(0, 0));
-
-        mColHSV.val[1] = mColHSV.val[1]/2.55;
-        mColHSV.val[2] = mColHSV.val[2]/2.55;
-
-        return mColHSV;
+        // sample the central (only) colour
+        return new Scalar(RGBADetSQ.get(0, 0));
     }
-
-    public void ChText(Scalar ScVal){
-
-        ColOut = "HSV color: (" + (int)ScVal.val[0] + ", " +(int)ScVal.val[1] + ", " + (int)ScVal.val[2] + ")";
-
-        Runnable UpdateUI = new Runnable() {
-            @Override
-            public void run() {
-                {
-                    SqCol.setText(ColOut);
-                }
-            }
-        };
-
-        UiAccess.post(UpdateUI);
-
-    }
-
-
 }
