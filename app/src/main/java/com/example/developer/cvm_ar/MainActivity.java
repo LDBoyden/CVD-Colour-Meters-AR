@@ -152,10 +152,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         Scalar mColHSV = ColourDetectionSq(mSizeX,mSizeY);
         double degs = mColHSV.val[0] * 360.0 / 255.0;
         double rads = degs / 2.0 * Math.PI;
-        int x = (int) Math.round(radius * Math.sin(rads));
-        int y = (int) Math.round(radius * Math.cos(rads));
-        Point lineEnd = new Point(x+Dsq1.x, y+Dsq1.y);
-        Imgproc.line(mRgba, Dsq1, lineEnd, new Scalar(200,100,100), 3);
+        int y = (int) Math.round(radius * Math.sin(rads));
+        int x = (int) Math.round(radius * Math.cos(rads));
+        Point lineEnd = new Point(y+DelC.y, x+DelC.x);
+        Imgproc.line(mRgba, DelC, lineEnd, new Scalar(200,100,100), 3);
     }
 
     public Scalar ColourDetectionSq(double x, double y){
@@ -180,7 +180,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         mColHSV.val[2] = mColHSV.val[2]/2.55;
 
         return mColHSV;
-        //ChText(mColHSV);
     }
 
     public void ChText(Scalar ScVal){
