@@ -125,17 +125,13 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     }
 
     public void DrawDetectionSq(int topLeftX, int topLeftY, int rectWidth, int rectHeight) {
-        // find the rectangle coordinates and draw the rectangle
-        Point rectTopLeft = new Point(topLeftX, topLeftY);
-        Point rectBotRight = new Point(topLeftX+rectWidth, topLeftY+rectHeight);
-        Imgproc.rectangle(mRgba, rectTopLeft, rectBotRight, new Scalar(100,25,100),3);
 
         // find the ellipse coordinates and draw the ellipse
         int centreX = topLeftX + (rectWidth/2);
         int centreY = topLeftY + (rectHeight/2);
         Point ellipseCentre = new Point(centreX, centreY);
         int ellipseRadius = Math.min(rectWidth, rectHeight)/2;
-        Imgproc.ellipse(mRgba,ellipseCentre,new Size(ellipseRadius,ellipseRadius),0,0,360,new Scalar(100,25,100),3);
+
 
         // Line Calculations By David Flatla.
         Scalar mColHSV = GetHSVColourAt(centreX, centreY);
@@ -144,6 +140,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         int x = (int) Math.round(satRadius * Math.cos(rads));
         int y = (int) Math.round(satRadius * Math.sin(rads) * -1.0);
         Point lineEnd = new Point(centreX+x, centreY+y);
+
+        int metLumi = 255 - (int)mColHSV.val[2]; // used to make the meter bright when dark and dark when bright
+
+        Imgproc.ellipse(mRgba,ellipseCentre,new Size(ellipseRadius,ellipseRadius),0,0,360,new Scalar(metLumi,metLumi,metLumi),3);
         Imgproc.line(mRgba, ellipseCentre, lineEnd, new Scalar(200,100,100), 3);
 
 //        String hue = "" + mColHSV.val[0];
