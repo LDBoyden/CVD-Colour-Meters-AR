@@ -1,9 +1,14 @@
 package com.example.developer.cvm_ar;
 
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
+
+import com.google.vr.ndk.base.GvrLayout;
+import com.google.vr.sdk.base.GvrActivity;
+import com.google.vr.sdk.base.GvrView;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -19,7 +24,7 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
+public class MainActivity extends GvrActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
     // Used to load the 'native-lib' library on application startup.
     static {
@@ -28,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     private static String TAG = "MainActivity";
     JavaCameraView camStream; //object of the surface view containing the camera feed "vidfeed"
+
     public Mat mRgba; //global variables are horrific
 
     @Override
@@ -43,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         camStream = (JavaCameraView) findViewById(R.id.vidFeed); //assigning the surface view to the camera object
         camStream.setVisibility(SurfaceView.VISIBLE);
         camStream.setCvCameraViewListener(this);
+
     }
 
     BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {

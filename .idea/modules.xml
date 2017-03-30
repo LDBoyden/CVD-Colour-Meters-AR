@@ -2,9 +2,15 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/CVM-AR.iml" filepath="$PROJECT_DIR$/CVM-AR.iml" />
       <module fileurl="file://$PROJECT_DIR$/CVM_AR.iml" filepath="$PROJECT_DIR$/CVM_AR.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/openCVLibrary320/openCVLibrary320.iml" filepath="$PROJECT_DIR$/openCVLibrary320/openCVLibrary320.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sdk-base-1.40.0/sdk-base-1.40.0.iml" filepath="$PROJECT_DIR$/sdk-base-1.40.0/sdk-base-1.40.0.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sdk-common-1.40.0/sdk-common-1.40.0.iml" filepath="$PROJECT_DIR$/sdk-common-1.40.0/sdk-common-1.40.0.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sdk-commonwidget-1.40.0/sdk-commonwidget-1.40.0.iml" filepath="$PROJECT_DIR$/sdk-commonwidget-1.40.0/sdk-commonwidget-1.40.0.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sdk-panowidget-1.40.0/sdk-panowidget-1.40.0.iml" filepath="$PROJECT_DIR$/sdk-panowidget-1.40.0/sdk-panowidget-1.40.0.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sdk-videowidget-1.40.0/sdk-videowidget-1.40.0.iml" filepath="$PROJECT_DIR$/sdk-videowidget-1.40.0/sdk-videowidget-1.40.0.iml" />
     </modules>
   </component>
 </project>
