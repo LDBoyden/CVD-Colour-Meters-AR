@@ -1,2 +1,2 @@
-include ':app', ':sdk-base-1.40.0', ':sdk-common-1.40.0', ':sdk-panowidget-1.40.0', ':sdk-commonwidget-1.40.0', ':sdk-videowidget-1.40.0'
+include ':app'
 include ':openCVLibrary320'
