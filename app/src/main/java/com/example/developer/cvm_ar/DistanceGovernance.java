@@ -4,7 +4,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 
 
-public class DistanceGovernance extends MainActivity implements GestureDetector.OnGestureListener{
+public class DistanceGovernance extends MainActivity implements GestureDetector.OnGestureListener {
 
     @Override
     public boolean onTouchEvent(MotionEvent event){

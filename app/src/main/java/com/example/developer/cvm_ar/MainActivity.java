@@ -48,8 +48,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         camStream.setVisibility(SurfaceView.VISIBLE);
         camStream.setCvCameraViewListener(this);
 
-        //mGestDet = new GestureDetector(this);
-
+        mGestDet = new GestureDetector(this, new DistanceGovernance());
 
         mColNum = 10;
         mRowNum = 5;
