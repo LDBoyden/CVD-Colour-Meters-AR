@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.SurfaceView;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -19,7 +20,7 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
 
-public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
+public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2, GestureDetector.OnGestureListener{
 
     // Used to load the 'native-lib' library on application startup.
     static {
@@ -48,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         camStream.setVisibility(SurfaceView.VISIBLE);
         camStream.setCvCameraViewListener(this);
 
-        mGestDet = new GestureDetector(this, new DistanceGovernance());
+        mGestDet = new GestureDetector(this, this);
 
         mColNum = 10;
         mRowNum = 5;
@@ -129,5 +130,65 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             }
         }
         return mRgba;  // return value should be output value
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        return mGestDet.onTouchEvent(event);
+    }
+
+    @Override
+    public boolean onDown(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        int min = 1;
+        int maxCol = 20;
+        int maxRow = 10;
+        int currentNumCol = mColNum;
+        int currentNumRow = mRowNum;
+
+        if((e1.getY() > e2.getY()) && (currentNumRow != maxRow)){
+            mRowNum = currentNumRow +1;
+            //swipe down
+        }
+
+        if((e1.getY() < e2.getY()) && (currentNumRow != min)){
+            mRowNum = currentNumRow -1;
+            //swipe up
+        }
+
+        if((e1.getX() < e2.getX()) && (currentNumCol != maxCol)){
+            mColNum = currentNumCol +1;
+            //swipe right
+        }
+
+        if((e1.getX() > e2.getX()) && (currentNumCol != min)){
+            mColNum = currentNumCol -1;
+            //swipe left
+        }
+        return true;
     }
 }
